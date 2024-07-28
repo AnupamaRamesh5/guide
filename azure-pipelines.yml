@@ -1,0 +1,79 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+parameters:
+  # resource group name
+  - name: rgname
+    type: string
+    default: 'admin-rg'
+  # storage account name
+  - name: stgaccount
+    type: string
+    default: 'storageaccount23532'
+  # container name
+  - name: container
+    type: string
+    default: 'tfstate'
+  # tfstate file name
+  - name: key
+    type: string
+    default: terraform.dev.tfstate
+
+stages:
+  - stage: Plan
+    displayName: Plan
+    jobs:
+     - job: 
+       steps:
+        - task: TerraformTaskV4@4
+          displayName: terrafrom init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            backendServiceArm: 'Free Trial(c24bb9fc-b2fa-4f5c-81ae-489c32b25b88)'
+            backendAzureRmResourceGroupName: ${{ parameters.rgname }}
+            backendAzureRmStorageAccountName: ${{ parameters.stgaccount }}
+            backendAzureRmContainerName: ${{ parameters.container }}
+            backendAzureRmKey: ${{ parameters.key }}
+          
+        - task: TerraformTaskV4@4
+          displayName: terrafrom validate
+          inputs:
+            provider: 'azurerm'
+            command: 'validate'
+        
+        - task: TerraformTaskV4@4
+          displayName: terraform plan
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            environmentServiceNameAzureRM: 'Free Trial(c24bb9fc-b2fa-4f5c-81ae-489c32b25b88)'
+      
+  - stage: Apply
+    displayName: apply
+    jobs:
+     - job: 
+       steps:
+        - task: TerraformTaskV4@4
+          displayName: terrafrom init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            backendServiceArm: 'Free Trial(c24bb9fc-b2fa-4f5c-81ae-489c32b25b88)'
+            backendAzureRmResourceGroupName: ${{ parameters.rgname }}
+            backendAzureRmStorageAccountName: ${{ parameters.stgaccount }}
+            backendAzureRmContainerName: ${{ parameters.container }}
+            backendAzureRmKey: ${{ parameters.key }}
+        
+        - task: TerraformTaskV4@4
+          displayName: terrafrom apply
+          inputs:
+            provider: 'azurerm'
+            command: 'apply'
