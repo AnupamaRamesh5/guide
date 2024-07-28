@@ -76,3 +76,4 @@ stages:
           inputs:
             provider: 'azurerm'
             command: 'apply'
+            environmentServiceNameAzureRM: 'Free Trial(c24bb9fc-b2fa-4f5c-81ae-489c32b25b88)'
